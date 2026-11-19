@@ -1,418 +1,484 @@
 // =====================================
-// STEPWISE AI - SIMULATION VARIABLES
+// STEPWISE AI - SYSTEM CONFIGURATION
 // =====================================
 
-// Flooring variables
+const ENERGY_PER_STEP = 0.005; // Joules
+const EFFICIENCY = 0.70;
+const STORAGE_CAPACITY = 0.02; // Wh
+
+const SENSOR_ENERGY = 0.00035;
+const TRANSMISSION_ENERGY = 0.00015;
+
+const BIN_HEIGHT = 100;
+
+// =====================================
+// SYSTEM DATA
+// =====================================
+
 let totalSteps = 0;
 let totalEnergy = 0;
-
-// Energy storage variables
 let storedEnergy = 0;
-let energyUsed = 0;
+let energyConsumed = 0;
+let energyOverflow = 0;
 
-// Smart bin variables
-let binFill = 0;
-let packetCount = 0;
+let bins = [
+    { name: "Bin 01", location: "Main Entrance", fill: 32, rate: 9 },
+    { name: "Bin 02", location: "Library", fill: 68, rate: 6 },
+    { name: "Bin 03", location: "Cafeteria", fill: 88, rate: 18 },
+    { name: "Bin 04", location: "Lecture Hall", fill: 48, rate: 8 }
+];
 
-// Energy conversion efficiency
-const efficiency = 0.70;
-
-// Smart bin settings
-const binHeight = 100;
-
-// Energy needed for one measurement and transmission
-const sensorEnergy = 0.000001;
-const transmissionEnergy = 0.000001;
-
+let locations = [
+    { name: "Main Entrance", steps: 22000, demand: 85, cost: 5000 },
+    { name: "Library", steps: 14000, demand: 65, cost: 3200 },
+    { name: "Cafeteria", steps: 19000, demand: 95, cost: 4200 },
+    { name: "Lecture Hall", steps: 9000, demand: 45, cost: 2500 }
+];
 
 // =====================================
-// SMART FLOORING SIMULATION
+// HELPER FUNCTIONS
 // =====================================
 
-function simulateFootsteps(numberOfSteps) {
+function formatEnergy(value) {
+    return value.toFixed(6);
+}
 
-    // Get the number of steps from the input
-    if (numberOfSteps === undefined) {
-        numberOfSteps = Number(
-            document.getElementById("stepInput").value
-        );
-    }
+function getBinStatus(fill) {
 
-    // Check if the input is valid
-    if (!Number.isFinite(numberOfSteps) ||
-        numberOfSteps <= 0 ||
-        !Number.isInteger(numberOfSteps)) {
+    if (fill >= 100) return "Immediate Collection";
+    if (fill >= 85) return "High Priority";
+    if (fill >= 75) return "Plan Collection";
+    if (fill >= 60) return "Monitor";
 
-        alert("Please enter a valid positive whole number of footsteps.");
+    return "Normal";
+}
+
+// =====================================
+// 1. KINETIC FLOORING
+// =====================================
+
+function generateEnergy() {
+
+    let steps = Number(document.getElementById("stepInput").value);
+
+    if (!Number.isFinite(steps) || steps <= 0) {
+        alert("Enter a valid number of footsteps.");
         return;
     }
 
-    // Get energy produced by each step in millijoules
-    let energyPerStep = Number(
-        document.getElementById("energyInput").value
-    );
+    steps = Math.floor(Math.min(steps, 1000000));
 
-    if (!Number.isFinite(energyPerStep) || energyPerStep <= 0) {
-        alert("Please enter a valid energy value.");
-        return;
-    }
+    let generatedJoules = steps * ENERGY_PER_STEP;
 
-    // Calculate the total energy generated
-    // 1 Wh = 3,600,000 mJ
+    let generatedWh = (generatedJoules / 3600) * EFFICIENCY;
 
-    let generatedEnergy =
-        (numberOfSteps * energyPerStep) / 3600000;
+    totalSteps += steps;
+    totalEnergy += generatedWh;
 
-    // Calculate usable energy after conversion losses
-    let usableEnergy = generatedEnergy * efficiency;
+    let availableSpace = STORAGE_CAPACITY - storedEnergy;
 
-    // Update the system values
-    totalSteps += numberOfSteps;
-    totalEnergy += generatedEnergy;
+    let energyStored = Math.min(generatedWh, availableSpace);
 
-    // Add energy to the storage unit
-    storedEnergy += usableEnergy;
+    storedEnergy += energyStored;
 
-    // Get storage capacity
-    let capacity = getStorageCapacity();
-
-    // Prevent storage from exceeding its capacity
-    if (storedEnergy > capacity) {
-        storedEnergy = capacity;
-    }
-
-    // Display the latest generated energy
-    document.getElementById("latestEnergy").textContent =
-        generatedEnergy.toFixed(8) + " Wh";
+    energyOverflow += generatedWh - energyStored;
 
     updateDashboard();
+    runAnalysis();
 }
 
-
 // =====================================
-// STORAGE CAPACITY
+// 2. ENERGY CONSUMPTION
 // =====================================
 
-function getStorageCapacity() {
+function transmitData() {
 
-    let capacity = Number(
-        document.getElementById("capacityInput").value
-    );
+    let requiredEnergy = SENSOR_ENERGY + TRANSMISSION_ENERGY;
 
-    if (!Number.isFinite(capacity) || capacity <= 0) {
-        return 0.01;
+    if (storedEnergy < requiredEnergy) {
+
+        document.getElementById("transmissionStatus").textContent =
+            "Transmission failed: insufficient stored energy.";
+
+        alert("Not enough stored energy. Simulate more footsteps.");
+
+        return;
     }
 
-    return capacity;
+    storedEnergy -= requiredEnergy;
+    energyConsumed += requiredEnergy;
+
+    let index = Number(document.getElementById("binSelect").value);
+
+    let distance = BIN_HEIGHT * (1 - bins[index].fill / 100);
+
+    document.getElementById("sensorDistance").textContent =
+        distance.toFixed(1) + " cm";
+
+    document.getElementById("transmissionStatus").textContent =
+        bins[index].name + " data successfully transmitted (simulated).";
+
+    document.getElementById("wirelessStatus").textContent =
+        "TRANSMITTED";
+
+    updateDashboard();
+    runAnalysis();
 }
 
-
 // =====================================
-// SMART BIN SIMULATION
+// 3. SMART BIN MONITORING
 // =====================================
 
 function addWaste() {
 
-    // Increase the bin fill level by 10%
-    binFill += 10;
+    let index = Number(document.getElementById("binSelect").value);
 
-    // The bin cannot exceed 100%
-    if (binFill > 100) {
-        binFill = 100;
-    }
+    let amount = Number(document.getElementById("wasteInput").value);
 
-    updateDashboard();
-}
-
-
-function emptyBin() {
-
-    // Reset the bin fill level
-    binFill = 0;
-
-    updateDashboard();
-}
-
-
-// =====================================
-// ULTRASONIC SENSOR AND LORA
-// =====================================
-
-function measureBin() {
-
-    // Calculate the energy required
-    let requiredEnergy = sensorEnergy + transmissionEnergy;
-
-    // Check whether enough energy is stored
-    if (storedEnergy < requiredEnergy) {
-
-        document.getElementById("transmissionStatus").textContent =
-            "Failed - Insufficient Energy";
-
-        document.getElementById("sensorStatus").textContent =
-            "Measurement not completed";
-
-        document.getElementById("energyAlert").className =
-            "alert alert-warning";
-
-        document.getElementById("energyAlert").textContent =
-            "Not enough stored energy to complete the sensor measurement and transmission.";
-
-        updateDashboard();
+    if (!Number.isFinite(amount) || amount <= 0) {
+        alert("Enter a valid waste amount.");
         return;
     }
 
-    // Use energy for the sensor and transmission
-    storedEnergy -= requiredEnergy;
-    energyUsed += requiredEnergy;
+    amount = Math.min(amount, 100);
 
-    // Record a successful transmission
-    packetCount++;
-
-    document.getElementById("transmissionStatus").textContent =
-        "Successful";
-
-    document.getElementById("sensorStatus").textContent =
-        "Measurement completed";
+    bins[index].fill = Math.min(100, bins[index].fill + amount);
 
     updateDashboard();
+    runAnalysis();
 }
 
+function emptyBin() {
+
+    let index = Number(document.getElementById("binSelect").value);
+
+    bins[index].fill = 0;
+
+    updateDashboard();
+    runAnalysis();
+}
+
+function displayBins() {
+
+    let container = document.getElementById("binContainer");
+
+    container.innerHTML = "";
+
+    bins.forEach((bin, index) => {
+
+        let status = getBinStatus(bin.fill);
+
+        let color = "success";
+
+        if (bin.fill >= 85) {
+            color = "danger";
+        } else if (bin.fill >= 60) {
+            color = "warning";
+        }
+
+        container.innerHTML += `
+            <div class="col-sm-6">
+                <div class="bin-card">
+
+                    <h6>${bin.name}</h6>
+
+                    <small>${bin.location}</small>
+
+                    <h3>${bin.fill}%</h3>
+
+                    <div class="progress">
+                        <div class="progress-bar bg-${color}"
+                             style="width:${bin.fill}%">
+                        </div>
+                    </div>
+
+                    <p class="mt-2 mb-0 small">
+                        ${status}
+                    </p>
+
+                </div>
+            </div>
+        `;
+    });
+}
 
 // =====================================
-// DASHBOARD UPDATES
+// 4. DASHBOARD UPDATES
 // =====================================
 
 function updateDashboard() {
 
-    // Get storage capacity
-    let capacity = getStorageCapacity();
-
-    // Calculate storage percentage
-    let storagePercentage = 0;
-
-    if (capacity > 0) {
-        storagePercentage = (storedEnergy / capacity) * 100;
-    }
-
-    // Calculate ultrasonic sensor distance
-    // A fuller bin means a shorter distance
-
-    let sensorDistance =
-        binHeight * (1 - binFill / 100);
-
-    // Update main statistics
     document.getElementById("totalSteps").textContent =
         totalSteps.toLocaleString();
 
-    document.getElementById("energyGenerated").textContent =
-        totalEnergy.toFixed(8);
+    document.getElementById("totalEnergy").textContent =
+        formatEnergy(totalEnergy);
 
     document.getElementById("storedEnergy").textContent =
-        storedEnergy.toFixed(8);
+        formatEnergy(storedEnergy);
 
-    document.getElementById("binPercentage").textContent =
-        binFill + "%";
+    document.getElementById("energyConsumed").textContent =
+        formatEnergy(energyConsumed) + " Wh";
 
+    document.getElementById("energyOverflow").textContent =
+        formatEnergy(energyOverflow) + " Wh";
 
-    // Update storage monitor
+    let percentage = (storedEnergy / STORAGE_CAPACITY) * 100;
+
     document.getElementById("storagePercentage").textContent =
-        storagePercentage.toFixed(1);
+        percentage.toFixed(1) + "%";
 
-    document.getElementById("storageDetails").textContent =
-        storedEnergy.toFixed(8) + " Wh";
+    document.getElementById("storageProgress").style.width =
+        percentage + "%";
 
-    document.getElementById("energyUsed").textContent =
-        energyUsed.toFixed(8) + " Wh";
+    document.getElementById("energyProgress").style.width =
+        Math.min(100, totalEnergy / STORAGE_CAPACITY * 100) + "%";
 
-    document.getElementById("storageBar").style.width =
-        Math.min(storagePercentage, 100) + "%";
+    document.getElementById("powerStatus").textContent =
+        storedEnergy >= SENSOR_ENERGY + TRANSMISSION_ENERGY
+        ? "Ready for operation"
+        : "Insufficient energy";
 
+    document.getElementById("attentionBins").textContent =
+        bins.filter(bin => bin.fill >= 75).length;
 
-    // Update bin monitor
-    document.getElementById("binLevelText").textContent =
-        binFill + "%";
+    document.getElementById("floorStatus").textContent =
+        totalSteps > 0 ? "DATA RECEIVED" : "SIMULATED";
 
-    document.getElementById("binBar").style.width =
-        binFill + "%";
+    document.getElementById("storageStatus").textContent =
+        storedEnergy > 0 ? "CHARGED" : "WAITING";
 
-    document.getElementById("sensorDistance").textContent =
-        sensorDistance.toFixed(1) + " cm";
+    displayBins();
 
-
-    // Change the bin progress bar color
-    let binBar = document.getElementById("binBar");
-
-    if (binFill >= 80) {
-        binBar.className = "progress-bar bg-danger";
-    } else if (binFill >= 50) {
-        binBar.className = "progress-bar bg-warning";
-    } else {
-        binBar.className = "progress-bar bg-success";
-    }
-
-
-    // Update connectivity information
-    document.getElementById("packetCount").textContent =
-        packetCount;
-
-    // Update bin collection alert
-    updateBinAlert();
-
-    // Update energy alert
-    updateEnergyAlert();
-
-    // Update the system summary
-    updateSystemSummary();
-
-    // Update time
-    updateTime();
+    updateCollectionPlan();
 }
 
-
 // =====================================
-// BIN COLLECTION ALERTS
+// 5. AI-BASED ANALYSIS
 // =====================================
 
-function updateBinAlert() {
+function runAnalysis() {
 
-    let alertBox = document.getElementById("collectionAlert");
-    let binText = document.getElementById("binAlert");
+    analyzeEnergy();
+    optimizeFlooring();
+    optimizeSystem();
 
-    if (binFill >= 100) {
+    updateCollectionPlan();
+}
 
-        binText.textContent = "Bin is full!";
-        alertBox.className = "alert alert-danger";
-        alertBox.textContent =
-            "Collection required. The bin has reached 100% capacity.";
+// ENERGY ANALYSIS
 
-    } else if (binFill >= 80) {
+function analyzeEnergy() {
 
-        binText.textContent = "Collection recommended.";
-        alertBox.className = "alert alert-warning";
-        alertBox.textContent =
-            "The bin has reached at least 80% capacity. Schedule collection soon.";
+    let requiredEnergy = SENSOR_ENERGY + TRANSMISSION_ENERGY;
+
+    let title = document.getElementById("energyAnalysis");
+    let recommendation = document.getElementById("energyRecommendation");
+
+    if (storedEnergy >= requiredEnergy) {
+
+        title.textContent = "Energy Available";
+
+        recommendation.textContent =
+            "Stored energy can support at least one simulated sensor reading and wireless transmission.";
 
     } else {
 
-        binText.textContent = "Bin is not full.";
-        alertBox.className = "alert alert-success";
-        alertBox.textContent =
-            "The bin has enough remaining space. Collection is not urgent.";
+        title.textContent = "Insufficient Energy";
+
+        recommendation.textContent =
+            "Generate additional energy through the kinetic flooring before operating the sensor and transmitter.";
     }
 }
 
+// FLOORING LOCATION OPTIMIZATION
 
-// =====================================
-// ENERGY ALERTS
-// =====================================
+function optimizeFlooring() {
 
-function updateEnergyAlert() {
+    let results = [];
 
-    let alertBox = document.getElementById("energyAlert");
+    locations.forEach(location => {
 
-    let capacity = getStorageCapacity();
+        let trafficScore = location.steps / 22000;
 
-    let storagePercentage = 0;
+        let demandScore = location.demand / 100;
 
-    if (capacity > 0) {
-        storagePercentage = (storedEnergy / capacity) * 100;
-    }
+        let costScore = 1 - (location.cost - 2500) / 2500;
 
-    if (storedEnergy <= 0) {
+        let score = (
+            trafficScore * 0.45 +
+            demandScore * 0.35 +
+            costScore * 0.20
+        ) * 100;
 
-        alertBox.className = "alert alert-warning";
-        alertBox.textContent =
-            "No energy is currently stored. Simulate footsteps to generate energy.";
+        results.push({
+            ...location,
+            score: score
+        });
+    });
 
-    } else if (storagePercentage >= 90) {
+    results.sort((a, b) => b.score - a.score);
 
-        alertBox.className = "alert alert-success";
-        alertBox.textContent =
-            "Energy storage is nearly full. The system has a high stored energy level.";
+    let table = document.getElementById("locationResults");
+
+    table.innerHTML = "";
+
+    results.forEach((location, index) => {
+
+        let recommendation =
+            index === 0 ? "Best Candidate" :
+            location.score >= 60 ? "Consider" : "Lower Priority";
+
+        table.innerHTML += `
+            <tr>
+                <td>${location.name}</td>
+                <td>${location.steps.toLocaleString()}</td>
+                <td>${location.demand}%</td>
+                <td>AED ${location.cost.toLocaleString()}</td>
+                <td>${location.score.toFixed(1)}/100</td>
+                <td>${recommendation}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("floorAnalysis").textContent =
+        results[0].name;
+
+    document.getElementById("floorRecommendation").textContent =
+        "This location has the highest suitability score based on pedestrian activity, nearby bin demand, and installation cost.";
+}
+
+// SYSTEM OPTIMIZATION
+
+function optimizeSystem() {
+
+    let highPriorityBins = bins.filter(bin => bin.fill >= 85).length;
+
+    let plannedBins = bins.filter(bin =>
+        bin.fill >= 75 && bin.fill < 85
+    ).length;
+
+    let title = document.getElementById("systemAnalysis");
+    let recommendation = document.getElementById("systemRecommendation");
+
+    if (highPriorityBins > 0) {
+
+        title.textContent = highPriorityBins + " Bins Need Collection";
+
+        recommendation.textContent =
+            "Prioritize bins with fill levels of 85% or higher.";
+
+    } else if (plannedBins > 0) {
+
+        title.textContent = "Collection Planning Needed";
+
+        recommendation.textContent =
+            "Schedule the bins reaching 75–84% for the next collection round.";
 
     } else {
 
-        alertBox.className = "alert alert-info";
-        alertBox.textContent =
-            "Energy is available in the storage unit. Continue monitoring energy generation and consumption.";
+        title.textContent = "System Operating Normally";
+
+        recommendation.textContent =
+            "Continue monitoring energy availability and smart-bin fill levels.";
     }
 }
 
-
 // =====================================
-// SYSTEM SUMMARY
+// 6. WASTE COLLECTION PLANNER
 // =====================================
 
-function updateSystemSummary() {
+function updateCollectionPlan() {
 
-    let summary = document.getElementById("systemSummary");
+    let table = document.getElementById("collectionResults");
 
-    summary.textContent =
-        "The flooring has recorded " +
-        totalSteps.toLocaleString() +
-        " footsteps. Total generated energy is " +
-        totalEnergy.toFixed(8) +
-        " Wh. The storage unit currently contains " +
-        storedEnergy.toFixed(8) +
-        " Wh. The smart bin is " +
-        binFill +
-        "% full. A total of " +
-        packetCount +
-        " successful transmissions have been recorded.";
+    if (!table) return;
+
+    let sortedBins = bins.map(bin => {
+
+        let timeUntilFull = bin.fill >= 100
+            ? 0
+            : ((100 - bin.fill) / bin.rate) * 24;
+
+        return {
+            ...bin,
+            timeUntilFull: timeUntilFull
+        };
+
+    });
+
+    sortedBins.sort((a, b) => {
+
+        let priorityA = a.fill >= 85 ? 1 :
+                        a.fill >= 75 ? 2 :
+                        a.fill >= 60 ? 3 : 4;
+
+        let priorityB = b.fill >= 85 ? 1 :
+                        b.fill >= 75 ? 2 :
+                        b.fill >= 60 ? 3 : 4;
+
+        return priorityA - priorityB ||
+               a.timeUntilFull - b.timeUntilFull;
+    });
+
+    table.innerHTML = "";
+
+    sortedBins.forEach(bin => {
+
+        let priority;
+        let action;
+        let priorityClass;
+
+        if (bin.fill >= 100) {
+
+            priority = "Immediate";
+            action = "Collect immediately";
+            priorityClass = "priority-high";
+
+        } else if (bin.fill >= 85) {
+
+            priority = "High";
+            action = "Prioritize collection";
+            priorityClass = "priority-high";
+
+        } else if (bin.fill >= 75) {
+
+            priority = "Planned";
+            action = "Include in next collection";
+            priorityClass = "priority-medium";
+
+        } else if (bin.fill >= 60) {
+
+            priority = "Monitor";
+            action = "Continue monitoring";
+            priorityClass = "priority-medium";
+
+        } else {
+
+            priority = "Normal";
+            action = "No collection required";
+            priorityClass = "priority-low";
+        }
+
+        let timeText = bin.fill >= 100
+            ? "Already full"
+            : bin.timeUntilFull.toFixed(1) + " hours";
+
+        table.innerHTML += `
+            <tr>
+                <td class="${priorityClass}">${priority}</td>
+                <td>${bin.name}</td>
+                <td>${bin.fill}%</td>
+                <td>${timeText}</td>
+                <td>${action}</td>
+            </tr>
+        `;
+    });
 }
 
-
 // =====================================
-// TIME DISPLAY
-// =====================================
-
-function updateTime() {
-
-    let currentTime = new Date();
-
-    document.getElementById("lastUpdated").textContent =
-        currentTime.toLocaleTimeString();
-}
-
-
-// =====================================
-// RESET SIMULATION
+// INITIALIZE WEBSITE
 // =====================================
 
-function resetSimulation() {
-
-    // Reset all simulation variables
-    totalSteps = 0;
-    totalEnergy = 0;
-    storedEnergy = 0;
-    energyUsed = 0;
-    binFill = 0;
-    packetCount = 0;
-
-    // Reset input values
-    document.getElementById("stepInput").value = 1000;
-    document.getElementById("energyInput").value = 5;
-    document.getElementById("capacityInput").value = 0.01;
-
-    // Reset transmission information
-    document.getElementById("transmissionStatus").textContent =
-        "No transmission yet";
-
-    document.getElementById("sensorStatus").textContent =
-        "Waiting for measurement";
-
-    document.getElementById("latestEnergy").textContent =
-        "0 Wh";
-
-    // Refresh the dashboard
-    updateDashboard();
-}
-
-
-// =====================================
-// START THE DASHBOARD
-// =====================================
-
-// Display initial values when the page loads
 updateDashboard();
+runAnalysis();
