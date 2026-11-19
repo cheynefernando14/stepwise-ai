@@ -1,150 +1,184 @@
-/* General Page Design */
 body {
-    background-color: #101820;
-    color: #ffffff;
+    background-color: #f3f6fa;
+    color: #243247;
     font-family: Arial, sans-serif;
 }
 
-/* Navigation Bar */
 .navbar {
-    background-color: #172631;
-    border-bottom: 1px solid #344653;
+    background-color: #14263d;
 }
 
 .navbar-brand {
-    color: #35c6b0 !important;
-    letter-spacing: 2px;
+    font-size: 23px;
 }
 
-/* Dashboard Cards */
-.dashboard-card,
-.metric-card {
-    background-color: #192832;
-    color: #ffffff;
-    border: 1px solid #344653;
-    border-radius: 10px;
-}
-
-.metric-card {
-    height: 100%;
-    border-left: 4px solid #35c6b0;
-}
-
-.metric-card p {
-    color: #aab8c2;
-    margin-bottom: 8px;
-}
-
-.metric-card h3 {
-    color: #35c6b0;
-    font-weight: bold;
-}
-
-/* Card Headings */
-.card h4 {
-    margin-bottom: 15px;
-    font-size: 20px;
-}
-
-/* Form Inputs */
-.form-control {
-    background-color: #101820;
-    color: #ffffff;
-    border: 1px solid #455966;
-}
-
-.form-control:focus {
-    background-color: #101820;
-    color: #ffffff;
-    border-color: #35c6b0;
-    box-shadow: none;
-}
-
-/* Simulation Label */
-.simulation-label {
-    display: inline-block;
-    background-color: #42391f;
-    color: #f3d47a;
-    padding: 7px 12px;
-    border-radius: 5px;
-    font-size: 11px;
-    letter-spacing: 1px;
-}
-
-/* Progress Bars */
-.progress {
-    height: 15px;
-    background-color: #344653;
-    border-radius: 10px;
-}
-
-.progress-bar {
-    background-color: #35c6b0;
-    transition: width 0.3s ease;
-}
-
-/* Connectivity Diagram */
-.connection-box {
-    background-color: #101820;
-    border: 1px solid #344653;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-}
-
-.connection-box p {
-    margin: 5px;
-    font-weight: bold;
-}
-
-.connection-line {
-    width: 3px;
-    height: 25px;
-    background-color: #35c6b0;
-    margin: auto;
-}
-
-.connection-active {
-    color: #35c6b0;
-}
-
-/* Buttons */
-.btn-primary {
-    background-color: #168f83;
-    border-color: #168f83;
-}
-
-.btn-primary:hover {
-    background-color: #117468;
-    border-color: #117468;
-}
-
-/* Alerts */
-.alert {
+.dashboard-card {
+    background-color: white;
     border: none;
+    border-radius: 12px;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.05);
 }
 
-/* Horizontal Lines */
-hr {
-    border-color: #455966;
-}
-
-/* Footer */
-footer {
+.dashboard-card h6 {
+    color: #758397;
     font-size: 13px;
 }
 
-/* Smaller Screens */
-@media (max-width: 576px) {
-    .navbar-text {
-        font-size: 12px;
+.dashboard-card h3 {
+    color: #1976d2;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.section-card {
+    background-color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+}
+
+.section-card h4 {
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.flow-box {
+    background-color: #edf4fc;
+    border-radius: 10px;
+    padding: 18px 8px;
+    height: 100%;
+}
+
+.flow-box i {
+    font-size: 28px;
+    color: #1976d2;
+}
+
+.flow-box h6 {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.flow-box small {
+    color: #758397;
+}
+
+.progress {
+    height: 12px;
+    border-radius: 10px;
+    background-color: #e4eaf1;
+}
+
+.progress-bar {
+    background-color: #1976d2;
+}
+
+.analysis-box {
+    background-color: #edf4fc;
+    padding: 18px;
+    border-radius: 10px;
+    height: 100%;
+}
+
+.analysis-box h6 {
+    color: #1976d2;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.analysis-box h5 {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.analysis-box p {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 0;
+}
+
+.connection-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #e8edf3;
+    padding: 16px 0;
+    font-size: 14px;
+}
+
+.connection-item span {
+    font-weight: bold;
+    font-size: 12px;
+    color: #1976d2;
+}
+
+.bin-card {
+    background-color: #edf4fc;
+    padding: 16px;
+    border-radius: 10px;
+    height: 100%;
+}
+
+.bin-card h6 {
+    font-weight: bold;
+}
+
+.bin-card h3 {
+    font-weight: bold;
+    margin: 12px 0;
+}
+
+.bin-card small {
+    color: #64748b;
+}
+
+.table {
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.table th {
+    color: #52647a;
+    font-size: 12px;
+}
+
+.priority-high {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.priority-medium {
+    color: #d18a00;
+    font-weight: bold;
+}
+
+.priority-low {
+    color: #198754;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: #1976d2;
+    border-color: #1976d2;
+}
+
+.btn-primary:hover {
+    background-color: #125da8;
+    border-color: #125da8;
+}
+
+@media (max-width: 768px) {
+    .section-card {
+        padding: 17px;
     }
 
-    .metric-card h3 {
-        font-size: 20px;
+    .dashboard-card {
+        padding: 14px;
     }
 
-    .card h4 {
+    .dashboard-card h3 {
         font-size: 18px;
     }
 }
