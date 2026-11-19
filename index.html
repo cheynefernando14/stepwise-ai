@@ -4,382 +4,392 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>StepWise AI Dashboard</title>
+    <title>StepWise AI</title>
 
     <!-- Bootstrap CSS -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Our own CSS file -->
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-dark navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                STEPWISE AI
-            </a>
+<nav class="navbar navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">StepWise AI</a>
+        <span class="text-light small">Smart Energy & Waste System</span>
+    </div>
+</nav>
 
-            <span class="navbar-text">
-                Smart Energy Monitoring System
-            </span>
-        </div>
-    </nav>
+<div class="container py-4">
 
-    <main class="container py-4">
+    <h1 class="mb-2">System Dashboard</h1>
+    <p class="text-secondary">Kinetic Flooring to Smart Bin Monitoring System</p>
 
-        <!-- Dashboard Heading -->
-        <div class="mb-4">
-            <h2>System Dashboard</h2>
-            <p class="text-secondary">
-                Monitor kinetic flooring, stored energy, and smart bin activity.
-            </p>
-            <span class="simulation-label">
-                SIMULATION MODE - NO PHYSICAL HARDWARE CONNECTED
-            </span>
-        </div>
+    <div class="alert alert-info">
+        <strong>Prototype Mode:</strong>
+        All readings are simulated and do not come from physical hardware.
+    </div>
 
-        <!-- System Status -->
-        <div class="card dashboard-card mb-4">
-            <div class="card-body d-flex justify-content-between flex-wrap gap-2">
-                <div>
-                    <h6 class="text-secondary">SYSTEM STATUS</h6>
-                    <h5 id="systemStatus">Operational</h5>
-                </div>
+    <!-- MAIN STATISTICS -->
+    <div class="row g-3 mb-4">
 
-                <div>
-                    <h6 class="text-secondary">CONNECTIVITY</h6>
-                    <h5 id="connectionStatus">LoRa Simulated</h5>
-                </div>
-
-                <div>
-                    <h6 class="text-secondary">LAST UPDATED</h6>
-                    <h5 id="lastUpdated">--:--:--</h5>
-                </div>
+        <div class="col-md-3 col-6">
+            <div class="card dashboard-card">
+                <h6>Total Footsteps</h6>
+                <h3 id="totalSteps">0</h3>
             </div>
         </div>
 
-        <!-- Main Statistics -->
-        <div class="row g-3 mb-4">
-
-            <div class="col-md-3 col-6">
-                <div class="card metric-card">
-                    <div class="card-body">
-                        <p>Total Footsteps</p>
-                        <h3 id="totalSteps">0</h3>
-                    </div>
-                </div>
+        <div class="col-md-3 col-6">
+            <div class="card dashboard-card">
+                <h6>Energy Generated</h6>
+                <h3><span id="totalEnergy">0.000000</span> Wh</h3>
             </div>
-
-            <div class="col-md-3 col-6">
-                <div class="card metric-card">
-                    <div class="card-body">
-                        <p>Energy Generated</p>
-                        <h3 id="energyGenerated">0</h3>
-                        <small>Wh</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 col-6">
-                <div class="card metric-card">
-                    <div class="card-body">
-                        <p>Stored Energy</p>
-                        <h3 id="storedEnergy">0</h3>
-                        <small>Wh</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 col-6">
-                <div class="card metric-card">
-                    <div class="card-body">
-                        <p>Bin Fill Level</p>
-                        <h3 id="binPercentage">0%</h3>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        <!-- Smart Flooring and Energy Storage -->
-        <div class="row g-4 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card dashboard-card">
+                <h6>Stored Energy</h6>
+                <h3><span id="storedEnergy">0.000000</span> Wh</h3>
+            </div>
+        </div>
 
-            <!-- Smart Flooring -->
-            <div class="col-lg-6">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body">
+        <div class="col-md-3 col-6">
+            <div class="card dashboard-card">
+                <h6>Bins Requiring Attention</h6>
+                <h3 id="attentionBins">0</h3>
+            </div>
+        </div>
 
-                        <h4>Smart Flooring Monitor</h4>
-                        <p class="text-secondary">
-                            Simulate footsteps on the kinetic flooring.
-                        </p>
+    </div>
 
-                        <div class="mb-3">
-                            <label for="stepInput" class="form-label">
-                                Number of footsteps
-                            </label>
+    <!-- SYSTEM FLOW -->
+    <div class="card section-card mb-4">
+        <h4>How the System Works</h4>
 
-                            <input
-                                type="number"
-                                id="stepInput"
-                                class="form-control"
-                                value="1000"
-                                min="1"
-                            >
-                        </div>
+        <div class="row text-center g-2 mt-2">
 
-                        <div class="mb-3">
-                            <label for="energyInput" class="form-label">
-                                Energy per step (mJ)
-                            </label>
-
-                            <input
-                                type="number"
-                                id="energyInput"
-                                class="form-control"
-                                value="5"
-                                min="0.01"
-                                step="0.1"
-                            >
-                        </div>
-
-                        <button
-                            class="btn btn-primary"
-                            onclick="simulateFootsteps()"
-                        >
-                            Simulate Footsteps
-                        </button>
-
-                        <button
-                            class="btn btn-outline-light mt-2 mt-sm-0"
-                            onclick="simulateFootsteps(1)"
-                        >
-                            Add 1 Step
-                        </button>
-
-                        <hr>
-
-                        <p>Energy from latest simulation:</p>
-                        <h3 id="latestEnergy">0 Wh</h3>
-
-                    </div>
+            <div class="col-md">
+                <div class="flow-box">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    <h6>Kinetic Flooring</h6>
+                    <small>Detects footsteps</small>
                 </div>
             </div>
 
-            <!-- Energy Storage -->
-            <div class="col-lg-6">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body">
+            <div class="col-md">
+                <div class="flow-box">
+                    <i class="bi bi-lightning-charge"></i>
+                    <h6>Energy Storage</h6>
+                    <small>Stores electricity</small>
+                </div>
+            </div>
 
-                        <h4>Energy Storage Monitor</h4>
-                        <p class="text-secondary">
-                            Monitor the energy stored for the smart bin.
-                        </p>
+            <div class="col-md">
+                <div class="flow-box">
+                    <i class="bi bi-trash"></i>
+                    <h6>Smart Bin</h6>
+                    <small>Monitors waste</small>
+                </div>
+            </div>
 
-                        <div class="mb-3">
-                            <label for="capacityInput" class="form-label">
-                                Storage capacity (Wh)
-                            </label>
+            <div class="col-md">
+                <div class="flow-box">
+                    <i class="bi bi-wifi"></i>
+                    <h6>Wireless Data</h6>
+                    <small>Transmits readings</small>
+                </div>
+            </div>
 
-                            <input
-                                type="number"
-                                id="capacityInput"
-                                class="form-control"
-                                value="0.01"
-                                min="0.000001"
-                                step="0.001"
-                            >
-                        </div>
-
-                        <h5>
-                            <span id="storagePercentage">0</span>% Capacity Used
-                        </h5>
-
-                        <div class="progress mb-3">
-                            <div
-                                id="storageBar"
-                                class="progress-bar"
-                                role="progressbar"
-                                style="width: 0%"
-                            >
-                            </div>
-                        </div>
-
-                        <p>
-                            Stored Energy:
-                            <strong id="storageDetails">0 Wh</strong>
-                        </p>
-
-                        <p>
-                            Energy Used:
-                            <strong id="energyUsed">0 Wh</strong>
-                        </p>
-
-                        <p class="text-secondary small">
-                            The storage level is limited by the selected capacity.
-                        </p>
-
-                    </div>
+            <div class="col-md">
+                <div class="flow-box">
+                    <i class="bi bi-display"></i>
+                    <h6>Website</h6>
+                    <small>Analyzes data</small>
                 </div>
             </div>
 
         </div>
+    </div>
 
-        <!-- Smart Bin and Connectivity -->
-        <div class="row g-4 mb-4">
+    <div class="row g-4">
 
-            <!-- Smart Bin -->
-            <div class="col-lg-6">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body">
+        <!-- FLOORING -->
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
 
-                        <h4>Smart Bin Monitor</h4>
-                        <p class="text-secondary">
-                            Simulated ultrasonic sensor readings.
-                        </p>
-
-                        <h5>
-                            Bin Fill Level:
-                            <span id="binLevelText">0%</span>
-                        </h5>
-
-                        <div class="progress mb-3">
-                            <div
-                                id="binBar"
-                                class="progress-bar bg-success"
-                                style="width: 0%"
-                            >
-                            </div>
-                        </div>
-
-                        <p>
-                            Sensor Distance:
-                            <strong id="sensorDistance">100 cm</strong>
-                        </p>
-
-                        <button
-                            class="btn btn-primary"
-                            onclick="addWaste()"
-                        >
-                            Add Waste
-                        </button>
-
-                        <button
-                            class="btn btn-outline-light mt-2 mt-sm-0"
-                            onclick="measureBin()"
-                        >
-                            Measure + Transmit
-                        </button>
-
-                        <button
-                            class="btn btn-outline-light mt-2"
-                            onclick="emptyBin()"
-                        >
-                            Empty Bin
-                        </button>
-
-                        <hr>
-
-                        <h6>Collection Status</h6>
-                        <p id="binAlert">Bin is not full.</p>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Connectivity -->
-            <div class="col-lg-6">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body">
-
-                        <h4>Connectivity Monitor</h4>
-                        <p class="text-secondary">
-                            Simulated communication between the smart bin and dashboard.
-                        </p>
-
-                        <div class="connection-box">
-                            <p>Smart Bin Controller</p>
-                            <div class="connection-line"></div>
-                            <p class="connection-active">LoRa Communication</p>
-                            <div class="connection-line"></div>
-                            <p>StepWise AI Dashboard</p>
-                        </div>
-
-                        <hr>
-
-                        <p>
-                            Packets Transmitted:
-                            <strong id="packetCount">0</strong>
-                        </p>
-
-                        <p>
-                            Latest Transmission:
-                            <strong id="transmissionStatus">No transmission yet</strong>
-                        </p>
-
-                        <p>
-                            Sensor Status:
-                            <strong id="sensorStatus">Waiting for measurement</strong>
-                        </p>
-
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- System Analysis -->
-        <div class="card dashboard-card mb-4">
-            <div class="card-body">
-
-                <h4>System Analysis</h4>
+                <h4>Kinetic Flooring Monitor</h4>
 
                 <p class="text-secondary">
-                    Basic calculations based on the simulated system readings.
+                    Simulate people walking on the kinetic floor tiles.
                 </p>
 
-                <div id="energyAlert" class="alert alert-secondary">
-                    Waiting for simulation data.
-                </div>
+                <label class="form-label">Number of footsteps</label>
 
-                <div id="collectionAlert" class="alert alert-secondary">
-                    Bin collection information will appear here.
-                </div>
+                <input type="number" id="stepInput"
+                       class="form-control mb-3"
+                       value="1000" min="1">
 
-                <h6>System Summary</h6>
-                <p id="systemSummary">
-                    Start by simulating footsteps.
-                </p>
+                <button class="btn btn-primary w-100"
+                        onclick="generateEnergy()">
+                    Simulate Footsteps
+                </button>
+
+                <hr>
+
+                <p>Energy per step: <strong>5 mJ</strong></p>
+                <p>Conversion efficiency: <strong>70%</strong></p>
+
+                <p>Generated Energy</p>
+
+                <div class="progress">
+                    <div id="energyProgress"
+                         class="progress-bar"
+                         style="width:0%">
+                    </div>
+                </div>
 
             </div>
         </div>
 
-        <!-- Reset Button -->
-        <div class="text-center mb-5">
-            <button
-                class="btn btn-danger"
-                onclick="resetSimulation()"
-            >
-                Reset Simulation
-            </button>
+        <!-- ENERGY STORAGE -->
+        <div class="col-lg-6">
+            <div class="card section-card h-100">
+
+                <h4>Energy Storage Monitor</h4>
+
+                <p class="text-secondary">
+                    Monitor energy stored and consumed by the smart-bin system.
+                </p>
+
+                <h3 id="storagePercentage">0%</h3>
+
+                <div class="progress mb-3">
+                    <div id="storageProgress"
+                         class="progress-bar bg-success"
+                         style="width:0%">
+                    </div>
+                </div>
+
+                <p>Energy Consumed: <strong id="energyConsumed">0.000000 Wh</strong></p>
+
+                <p>Energy Overflow: <strong id="energyOverflow">0.000000 Wh</strong></p>
+
+                <p>System Status: <strong id="powerStatus">Waiting for energy</strong></p>
+
+            </div>
         </div>
 
-        <footer class="text-center text-secondary pb-3">
-            StepWise AI | University Prototype
-            <br>
-            All displayed readings are simulated.
-        </footer>
+        <!-- SMART BINS -->
+        <div class="col-lg-7">
+            <div class="card section-card h-100">
 
-    </main>
+                <h4>Smart Bin Monitoring</h4>
 
-    <!-- Our JavaScript file -->
-    <script src="script.js"></script>
+                <p class="text-secondary">
+                    Monitor ultrasonic sensor readings and waste levels.
+                </p>
+
+                <label class="form-label">Select Smart Bin</label>
+
+                <select id="binSelect" class="form-select mb-3">
+                    <option value="0">Bin 01 - Main Entrance</option>
+                    <option value="1">Bin 02 - Library</option>
+                    <option value="2">Bin 03 - Cafeteria</option>
+                    <option value="3">Bin 04 - Lecture Hall</option>
+                </select>
+
+                <label class="form-label">Add Waste (%)</label>
+
+                <input type="number" id="wasteInput"
+                       class="form-control mb-3"
+                       value="5" min="1" max="100">
+
+                <button class="btn btn-primary mb-3"
+                        onclick="addWaste()">
+                    Add Waste
+                </button>
+
+                <div id="binContainer" class="row g-3"></div>
+
+                <hr>
+
+                <p>Ultrasonic Sensor Distance:</p>
+                <h5 id="sensorDistance">-- cm</h5>
+
+                <button class="btn btn-outline-primary w-100"
+                        onclick="transmitData()">
+                    Measure and Transmit Data
+                </button>
+
+                <p class="small text-secondary mt-2" id="transmissionStatus">
+                    No transmission yet.
+                </p>
+
+                <button class="btn btn-outline-secondary btn-sm"
+                        onclick="emptyBin()">
+                    Empty Selected Bin
+                </button>
+
+            </div>
+        </div>
+
+        <!-- CONNECTION -->
+        <div class="col-lg-5">
+            <div class="card section-card h-100">
+
+                <h4>System Connectivity</h4>
+
+                <div class="connection-item">
+                    Flooring Data
+                    <span id="floorStatus">SIMULATED</span>
+                </div>
+
+                <div class="connection-item">
+                    Energy Storage
+                    <span id="storageStatus">WAITING</span>
+                </div>
+
+                <div class="connection-item">
+                    Wireless Connection
+                    <span id="wirelessStatus">IDLE</span>
+                </div>
+
+                <div class="connection-item">
+                    Website Dashboard
+                    <span class="text-success">ONLINE</span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AI ANALYSIS -->
+    <div class="card section-card mt-4">
+
+        <h4>AI-Based Analysis and Optimization</h4>
+
+        <p class="text-secondary">
+            Analyze flooring activity, generated energy, storage capacity,
+            and smart-bin requirements.
+        </p>
+
+        <button class="btn btn-primary mb-3"
+                onclick="runAnalysis()">
+            <i class="bi bi-stars"></i> Run AI Analysis
+        </button>
+
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <div class="analysis-box">
+                    <h6>Energy Analysis</h6>
+                    <h5 id="energyAnalysis">Waiting for analysis</h5>
+                    <p id="energyRecommendation"></p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="analysis-box">
+                    <h6>Flooring Optimization</h6>
+                    <h5 id="floorAnalysis">Waiting for analysis</h5>
+                    <p id="floorRecommendation"></p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="analysis-box">
+                    <h6>System Optimization</h6>
+                    <h5 id="systemAnalysis">Waiting for analysis</h5>
+                    <p id="systemRecommendation"></p>
+                </div>
+            </div>
+
+        </div>
+
+        <hr>
+
+        <h5>Flooring Location Comparison</h5>
+
+        <p class="text-secondary small">
+            Compares possible locations based on pedestrian activity,
+            nearby bin demand, and estimated installation cost.
+        </p>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Daily Footsteps</th>
+                        <th>Bin Demand</th>
+                        <th>Cost (AED)</th>
+                        <th>Score</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody id="locationResults"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- COLLECTION PLANNER -->
+    <div class="card section-card mt-4">
+
+        <h4>Waste Collection Recommendations</h4>
+
+        <p class="text-secondary">
+            The system prioritizes bins according to their fill levels
+            and estimated time until full.
+        </p>
+
+        <button class="btn btn-primary mb-3"
+                onclick="updateCollectionPlan()">
+            Update Collection Recommendations
+        </button>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Priority</th>
+                        <th>Bin</th>
+                        <th>Fill Level</th>
+                        <th>Estimated Time Until Full</th>
+                        <th>Recommended Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="collectionResults"></tbody>
+            </table>
+        </div>
+
+        <p class="small text-secondary">
+            Below 60%: Normal. 60–74%: Monitor.
+            75–84%: Plan collection. 85–99%: High priority.
+            100%: Immediate collection.
+        </p>
+
+    </div>
+
+    <div class="text-center text-secondary py-4">
+        StepWise AI | Kinetic Flooring and Smart Bin Prototype
+    </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Custom JavaScript -->
+<script src="script.js"></script>
 
 </body>
 </html>
